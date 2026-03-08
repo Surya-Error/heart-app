@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Love Proposal App</title>
+</head>
+<body>
+    <h2>Love Proposal Form ❤️</h2>
+
+    <form id="loveForm">
+        <input type="text" id="yourName" placeholder="Your Name" required><br><br>
+        <input type="text" id="crushName" placeholder="Crush Name" required><br><br>
+        <textarea id="heartMessage" placeholder="Your Message" required></textarea><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById("loveForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const yourName = document.getElementById("yourName").value;
+            const crushName = document.getElementById("crushName").value;
+            const heartMessage = document.getElementById("heartMessage").value;
+
+            const loveScore = Math.floor(Math.random() * 100) + 1;
+            const proposal = loveScore > 70 ? "She/He might say YES ❤️" : "Keep trying 💔";
+
+            const response = await fetch("/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    yourName,
+                    crushName,
+                    heartMessage,
+                    loveScore,
+                    proposal
+                })
+            });
+
+            if (response.ok) {
+                window.location.href = `result.html?score=${loveScore}&proposal=${proposal}`;
+            }
+        });
+    </script>
+</body>
+</html>

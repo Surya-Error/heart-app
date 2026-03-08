@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result</title>
+</head>
+<body>
+    <h2>Your Love Result 💘</h2>
+
+    <h3 id="score"></h3>
+    <h3 id="proposal"></h3>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById("score").innerText =
+            "Love Score: " + params.get("score") + "%";
+
+        document.getElementById("proposal").innerText =
+            "Result: " + params.get("proposal");
+    </script>
+</body>
+</html>
