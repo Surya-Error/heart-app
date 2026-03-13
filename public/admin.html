@@ -162,15 +162,27 @@ background:#ff004c;
 
 <script>
 
+const ADMIN_PASS = "superStrongPassword123";
+
 function loadData(){
 
 fetch(window.location.origin + "/admin",{
+
 headers:{
-"admin-password":"superStrongPassword123"
+"admin-password": ADMIN_PASS
 }
+
 })
 
-.then(res=>res.json())
+.then(res=>{
+
+if(!res.ok){
+throw new Error("Unauthorized")
+}
+
+return res.json()
+
+})
 
 .then(data=>{
 
@@ -211,15 +223,22 @@ document.getElementById("tableBody").innerHTML=rows
 
 })
 
+.catch(err=>{
+console.log("Admin fetch error:",err)
+})
+
 }
 
 function deleteEntry(id){
 
 fetch(window.location.origin + "/delete/" + id,{
+
 method:"DELETE",
+
 headers:{
-"admin-password":"superStrongPassword123"
+"admin-password": ADMIN_PASS
 }
+
 })
 
 .then(()=>loadData())
