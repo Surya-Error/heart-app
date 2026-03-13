@@ -39,15 +39,10 @@ padding:20px;
 .card{
 
 background:rgba(255,255,255,0.15);
-
 padding:20px;
-
 border-radius:15px;
-
 text-align:center;
-
 backdrop-filter:blur(10px);
-
 box-shadow:0 10px 30px rgba(0,0,0,0.3);
 
 }
@@ -62,13 +57,9 @@ font-size:32px;
 .tableBox{
 
 margin:20px;
-
 background:rgba(255,255,255,0.15);
-
 border-radius:15px;
-
 padding:20px;
-
 overflow:auto;
 
 }
@@ -76,7 +67,6 @@ overflow:auto;
 table{
 
 width:100%;
-
 border-collapse:collapse;
 
 }
@@ -84,7 +74,6 @@ border-collapse:collapse;
 th,td{
 
 padding:12px;
-
 text-align:center;
 
 }
@@ -104,15 +93,10 @@ background:rgba(255,255,255,0.05);
 button{
 
 padding:6px 12px;
-
 border:none;
-
 border-radius:6px;
-
 background:#ff2e63;
-
 color:white;
-
 cursor:pointer;
 
 }
@@ -134,27 +118,18 @@ background:#ff004c;
 <div class="cards">
 
 <div class="card">
-
 <div>Total Entries</div>
-
 <h2 id="total">0</h2>
-
 </div>
 
 <div class="card">
-
 <div>Perfect Couples</div>
-
 <h2 id="perfect">0</h2>
-
 </div>
 
 <div class="card">
-
 <div>Try Again</div>
-
 <h2 id="retry">0</h2>
-
 </div>
 
 </div>
@@ -168,17 +143,11 @@ background:#ff004c;
 <tr>
 
 <th>ID</th>
-
 <th>Your Name</th>
-
 <th>Crush</th>
-
 <th>Message</th>
-
 <th>Score</th>
-
 <th>Proposal</th>
-
 <th>Action</th>
 
 </tr>
@@ -195,7 +164,11 @@ background:#ff004c;
 
 function loadData(){
 
-fetch("/admin")
+fetch(window.location.origin + "/admin",{
+headers:{
+"admin-password":"superStrongPassword123"
+}
+})
 
 .then(res=>res.json())
 
@@ -216,25 +189,16 @@ rows+=`
 <tr>
 
 <td>${item.id}</td>
-
 <td>${item.your_name}</td>
-
 <td>${item.crush_name}</td>
-
 <td>${item.heart_message}</td>
-
-<td>${item.love_score}</td>
-
+<td>${item.love_score}%</td>
 <td>${item.proposal}</td>
 
 <td>
-
 <button onclick="deleteEntry(${item.id})">
-
 Delete
-
 </button>
-
 </td>
 
 </tr>
@@ -251,63 +215,14 @@ document.getElementById("tableBody").innerHTML=rows
 
 function deleteEntry(id){
 
-fetch("/delete/"+id,{method:"DELETE"})
+fetch(window.location.origin + "/delete/" + id,{
+method:"DELETE",
+headers:{
+"admin-password":"superStrongPassword123"
+}
+})
 
 .then(()=>loadData())
-
-}
-
-loadData()
-
-</script>
-
-<script>
-
-function loadData(){
-
-fetch("/admin")
-.then(res=>res.json())
-.then(data=>{
-
-let rows=""
-
-data.forEach(item=>{
-
-rows+=`
-<tr>
-
-<td>${item.id}</td>
-<td>${item.your_name}</td>
-<td>${item.crush_name}</td>
-<td>${item.heart_message}</td>
-<td>${item.love_score}%</td>
-<td>${item.proposal}</td>
-
-<td>
-<button onclick="deleteEntry(${item.id})">
-Delete
-</button>
-</td>
-
-</tr>
-`
-
-})
-
-document.getElementById("tableData").innerHTML=rows
-
-})
-
-}
-
-function deleteEntry(id){
-
-fetch("/delete/"+id,{
-method:"DELETE"
-})
-.then(()=>{
-loadData()
-})
 
 }
 
