@@ -1,21 +1,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Result</title>
+
+<title>Love Result</title>
+
+<style>
+
+body{
+margin:0;
+font-family:sans-serif;
+background:linear-gradient(135deg,#ff416c,#ff4b2b);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+color:white;
+overflow:hidden;
+}
+
+/* result circle */
+
+.circle{
+width:220px;
+height:220px;
+border-radius:50%;
+border:10px solid white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:50px;
+margin:20px;
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1)}
+50%{transform:scale(1.15)}
+100%{transform:scale(1)}
+}
+
+/* admin button */
+
+.adminBtn{
+
+position:fixed;
+top:20px;
+right:20px;
+
+background:white;
+color:#ff2e63;
+
+border:none;
+border-radius:50%;
+
+width:45px;
+height:45px;
+
+font-size:20px;
+
+cursor:pointer;
+
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+
+}
+
+/* popup */
+
+.popup{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.7);
+
+display:none;
+align-items:center;
+justify-content:center;
+
+}
+
+.popupBox{
+
+background:white;
+color:black;
+
+padding:30px;
+
+border-radius:12px;
+
+text-align:center;
+
+}
+
+.popupBox input{
+
+padding:10px;
+width:200px;
+
+margin-top:10px;
+
+}
+
+.popupBox button{
+
+margin-top:10px;
+
+padding:10px 15px;
+
+border:none;
+
+background:#ff2e63;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+</style>
+
 </head>
+
 <body>
-    <h2>Your Love Result 💘</h2>
 
-    <h3 id="score"></h3>
-    <h3 id="proposal"></h3>
+<button class="adminBtn" onclick="openPopup()">⚙</button>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById("score").innerText =
-            "Love Score: " + params.get("score") + "%";
+<h1>💘 Love Result</h1>
 
-        document.getElementById("proposal").innerText =
-            "Result: " + params.get("proposal");
-    </script>
+<div class="circle" id="score">0%</div>
+
+<h2 id="proposal"></h2>
+
+<button onclick="location.href='index.html'">Try Again</button>
+
+<div class="popup" id="popup">
+
+<div class="popupBox">
+
+<h3>Admin Login</h3>
+
+<input type="password" id="adminPass" placeholder="Enter Password">
+
+<br>
+
+<button onclick="checkPassword()">Login</button>
+
+</div>
+
+</div>
+
+<script>
+
+
+const params=new URLSearchParams(window.location.search)
+
+document.getElementById("score").innerText=params.get("score")+"%"
+
+document.getElementById("proposal").innerText=params.get("proposal")
+
+function openPopup(){
+
+document.getElementById("popup").style.display="flex"
+
+}
+
+function checkPassword(){
+
+const pass=document.getElementById("adminPass").value
+
+if(pass==="superStrongPassword123"){
+
+window.location.href="admin.html"
+
+}
+
+else{
+
+alert("Wrong Password")
+
+}
+
+}
+
+</script>
+
 </body>
 </html>

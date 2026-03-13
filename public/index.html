@@ -1,46 +1,231 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Love Proposal App</title>
+<title>Love Calculator ❤️</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+background:linear-gradient(135deg,#ff416c,#ff4b2b);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+}
+
+.box{
+background:rgba(255,255,255,0.15);
+padding:40px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+width:350px;
+}
+
+input,textarea{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:white;
+color:#ff2e63;
+border:none;
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+}
+
+.error{
+color:yellow;
+font-size:14px;
+}
+
+</style>
+
 </head>
+
 <body>
-    <h2>Love Proposal Form ❤️</h2>
 
-    <form id="loveForm">
-        <input type="text" id="yourName" placeholder="Your Name" required><br><br>
-        <input type="text" id="crushName" placeholder="Crush Name" required><br><br>
-        <textarea id="heartMessage" placeholder="Your Message" required></textarea><br><br>
+<div class="box">
 
-        <button type="submit">Submit</button>
-    </form>
+<h2>❤️ Love Calculator</h2>
 
-    <script>
-        document.getElementById("loveForm").addEventListener("submit", async function(e) {
-            e.preventDefault();
+<form id="loveForm">
 
-            const yourName = document.getElementById("yourName").value;
-            const crushName = document.getElementById("crushName").value;
-            const heartMessage = document.getElementById("heartMessage").value;
+<input id="yourName" placeholder="Your Name" required>
+<input id="crushName" placeholder="Crush Name" required>
 
-            const loveScore = Math.floor(Math.random() * 100) + 1;
-            const proposal = loveScore > 70 ? "She/He might say YES ❤️" : "Keep trying 💔";
+<textarea id="heartMessage" placeholder="Your Love Message"></textarea>
 
-            const response = await fetch("/submit", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    yourName,
-                    crushName,
-                    heartMessage,
-                    loveScore,
-                    proposal
-                })
-            });
+<div class="error" id="error"></div>
 
-            if (response.ok) {
-                window.location.href = `result.html?score=${loveScore}&proposal=${proposal}`;
-            }
-        });
-    </script>
+<button type="submit">Check Love %</button>
+
+</form>
+
+</div>
+
+<script>
+
+function validName(name){
+
+const regex=/^[A-Za-z ]{3,}$/
+
+return regex.test(name)
+
+}
+
+function nameSimilarity(a,b){
+
+a=a.toLowerCase()
+b=b.toLowerCase()
+
+let score=0
+
+for(let char of a){
+
+if(b.includes(char)){
+score++
+}
+
+}
+
+return Math.min(score*3,30)
+
+}
+
+function sentimentScore(msg){
+
+msg=msg.toLowerCase()
+
+const words=[
+"love","miss","heart","care","forever",
+"trust","kiss","hug","life","marry"
+]
+
+let score=0
+
+words.forEach(w=>{
+if(msg.includes(w)){
+score+=5
+}
+})
+
+return Math.min(score,25)
+
+}
+
+function messageLengthScore(msg){
+
+if(msg.length>80) return 10
+if(msg.length>40) return 7
+if(msg.length>20) return 5
+
+return 2
+
+}
+
+document.getElementById("loveForm").addEventListener("submit",async function(e){
+
+e.preventDefault()
+
+const yourName=document.getElementById("yourName").value.trim()
+const crushName=document.getElementById("crushName").value.trim()
+const message=document.getElementById("heartMessage").value.trim()
+
+const error=document.getElementById("error")
+
+if(!validName(yourName) || !validName(crushName)){
+
+error.innerText="Enter valid names (letters only, min 3 characters)"
+
+return
+
+}
+
+error.innerText=""
+
+let score=0
+
+/* name similarity */
+
+score+=nameSimilarity(yourName,crushName)
+
+/* length compatibility */
+
+let lenDiff=Math.abs(yourName.length-crushName.length)
+
+score+=Math.max(15-lenDiff*2,5)
+
+/* message sentiment */
+
+score+=sentimentScore(message)
+
+/* message length */
+
+score+=messageLengthScore(message)
+
+/* chemistry */
+
+score+=Math.floor(Math.random()*20)
+
+score=Math.min(score,100)
+
+let proposal=""
+
+if(score>80){
+
+proposal="Soulmates ❤️"
+
+}
+else if(score>60){
+
+proposal="Perfect Couple ❤️"
+
+}
+else if(score>40){
+
+proposal="Good Connection 🙂"
+
+}
+else{
+
+proposal="Need More Effort 💔"
+
+}
+
+/* save */
+
+await fetch("/submit",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+yourName,
+crushName,
+heartMessage:message,
+loveScore:score,
+proposal
+
+})
+
+})
+
+window.location.href=`result.html?score=${score}&proposal=${encodeURIComponent(proposal)}`
+
+})
+
+</script>
+
 </body>
 </html>

@@ -18,6 +18,14 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.0",
-    "mysql2": "^3.18.2"
-  }
+    "mysql2": "^3.19.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Surya-Error/heart-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Surya-Error/heart-app/issues"
+  },
+  "homepage": "https://github.com/Surya-Error/heart-app#readme"
 }

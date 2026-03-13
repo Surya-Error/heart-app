@@ -2,91 +2,106 @@ require("dotenv").config();
 
 const express = require("express");
 const mysql = require("mysql2");
-const bodyParser = require("body-parser");
 const cors = require("cors");
-const rateLimit = require("express-rate-limit");
 
 const app = express();
 
-/* ------------------ Middleware ------------------ */
+app.use(express.json());
 app.use(cors());
-app.use(bodyParser.json());
 app.use(express.static("public"));
 
-// Rate Limiter
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests
-});
-app.use(limiter);
+/* DATABASE CONNECTION */
 
-/* ------------------ Database Connection ------------------ */
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+const db = mysql.createPool({
+  host: "127.0.0.1",
+  user: "root",
+  password: "",
+  database: "heart_app"
 });
 
-db.connect((err) => {
+/* CHECK DB CONNECTION */
+
+db.getConnection((err, connection) => {
   if (err) {
-    console.error("Database connection failed:", err);
+    console.log("❌ Database connection failed:", err);
   } else {
-    console.log("Database Connected Successfully");
+    console.log("✅ Database connected");
+    connection.release();
   }
 });
 
-/* ------------------ Admin Password ------------------ */
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+/* SUBMIT FORM */
 
-function checkAdmin(req, res, next) {
-  const password = req.headers["admin-password"];
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(403).json({ error: "Unauthorized" });
-  }
-  next();
-}
-
-/* ------------------ Save Submission ------------------ */
 app.post("/submit", (req, res) => {
+
+  console.log("📩 Submit request received");
+  console.log("Data:", req.body);
+
   const { yourName, crushName, heartMessage, loveScore, proposal } = req.body;
 
   const sql = `
-    INSERT INTO submissions
-    (your_name, crush_name, heart_message, love_score, proposal)
-    VALUES (?, ?, ?, ?, ?)
+  INSERT INTO submissions
+  (your_name, crush_name, heart_message, love_score, proposal)
+  VALUES (?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [yourName, crushName, heartMessage, loveScore, proposal], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error saving data");
-    }
-    res.json({ message: "Saved Successfully" });
-  });
+  db.query(sql,
+    [yourName, crushName, heartMessage, loveScore, proposal],
+    (err, result) => {
+
+      if (err) {
+        console.log("❌ SQL ERROR:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      console.log("✅ Data saved");
+
+      res.json({ success: true });
+
+    });
+
 });
 
-/* ------------------ Admin View ------------------ */
-app.get("/admin", checkAdmin, (req, res) => {
+/* ADMIN DATA */
+
+app.get("/admin", (req, res) => {
+
   db.query("SELECT * FROM submissions ORDER BY id DESC", (err, results) => {
+
     if (err) {
-      return res.status(500).send("Error fetching data");
+      console.log("❌ Admin fetch error:", err);
+      return res.status(500).send("Error");
     }
+
     res.json(results);
+
   });
+
 });
 
-/* ------------------ Delete Entry ------------------ */
-app.delete("/delete/:id", checkAdmin, (req, res) => {
+/* DELETE ENTRY */
+
+app.delete("/delete/:id", (req, res) => {
+
   const id = req.params.id;
+
   db.query("DELETE FROM submissions WHERE id = ?", [id], (err) => {
-    if (err) return res.status(500).send("Error deleting");
-    res.json({ message: "Deleted successfully" });
+
+    if (err) {
+      console.log("❌ Delete error:", err);
+      return res.status(500).send("Delete error");
+    }
+
+    res.json({ message: "Deleted" });
+
   });
+
 });
 
-/* ------------------ Start Server ------------------ */
+/* SERVER START */
+
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log("🚀 Server running on port " + PORT);
 });

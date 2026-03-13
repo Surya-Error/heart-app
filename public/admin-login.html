@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Admin Login</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:#222;
+padding:40px;
+border-radius:10px;
+text-align:center;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:200px;
+}
+
+button{
+padding:10px 20px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Admin Login</h2>
+
+<input type="password" id="password" placeholder="Enter Password">
+
+<br>
+
+<button onclick="login()">Login</button>
+
+<p id="error"></p>
+
+</div>
+
+<script>
+
+function login(){
+
+let pass=document.getElementById("password").value
+
+if(pass==="superStrongPassword123"){
+
+window.location.href="admin.html"
+
+}else{
+
+document.getElementById("error").innerText="Wrong password"
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
