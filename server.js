@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 const express = require("express");
-const mysql = require("mysql2");
 const cors = require("cors");
+const { Pool } = require("pg");
 
 const app = express();
 
@@ -12,89 +12,97 @@ app.use(express.static("public"));
 
 /* DATABASE CONNECTION */
 
-const db = mysql.createPool({
-  host: "127.0.0.1",
-  user: "root",
-  password: "",
-  database: "heart_app"
+const db = new Pool({
+  connectionString: "postgresql://postgres:YOUR_PASSWORD@db.ppedksrmxfvkfoekcffx.supabase.co:5432/postgres",
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 /* CHECK DB CONNECTION */
 
-db.getConnection((err, connection) => {
-  if (err) {
-    console.log("❌ Database connection failed:", err);
-  } else {
-    console.log("✅ Database connected");
-    connection.release();
-  }
+db.connect()
+.then(() => {
+  console.log("✅ Database connected");
+})
+.catch(err => {
+  console.log("❌ Database connection failed:", err);
 });
 
 /* SUBMIT FORM */
 
-app.post("/submit", (req, res) => {
+app.post("/submit", async (req, res) => {
 
   console.log("📩 Submit request received");
-  console.log("Data:", req.body);
+  console.log(req.body);
 
   const { yourName, crushName, heartMessage, loveScore, proposal } = req.body;
 
-  const sql = `
-  INSERT INTO submissions
-  (your_name, crush_name, heart_message, love_score, proposal)
-  VALUES (?, ?, ?, ?, ?)
-  `;
+  try {
 
-  db.query(sql,
-    [yourName, crushName, heartMessage, loveScore, proposal],
-    (err, result) => {
+    const sql = `
+    INSERT INTO submissions
+    (your_name,crush_name,heart_message,love_score,proposal)
+    VALUES ($1,$2,$3,$4,$5)
+    `;
 
-      if (err) {
-        console.log("❌ SQL ERROR:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
+    await db.query(sql,[yourName,crushName,heartMessage,loveScore,proposal]);
 
-      console.log("✅ Data saved");
+    console.log("✅ Data saved");
 
-      res.json({ success: true });
+    res.json({success:true});
 
-    });
+  } catch(err){
+
+    console.log("❌ SQL ERROR:",err);
+    res.status(500).json({error:"Database error"});
+
+  }
 
 });
 
 /* ADMIN DATA */
 
-app.get("/admin", (req, res) => {
+app.get("/admin", async (req,res)=>{
 
-  db.query("SELECT * FROM submissions ORDER BY id DESC", (err, results) => {
+  try{
 
-    if (err) {
-      console.log("❌ Admin fetch error:", err);
-      return res.status(500).send("Error");
-    }
+    const result = await db.query(
+      "SELECT * FROM submissions ORDER BY id DESC"
+    );
 
-    res.json(results);
+    res.json(result.rows);
 
-  });
+  }catch(err){
+
+    console.log("❌ Admin fetch error:",err);
+    res.status(500).send("Error");
+
+  }
 
 });
 
 /* DELETE ENTRY */
 
-app.delete("/delete/:id", (req, res) => {
+app.delete("/delete/:id", async (req,res)=>{
 
   const id = req.params.id;
 
-  db.query("DELETE FROM submissions WHERE id = ?", [id], (err) => {
+  try{
 
-    if (err) {
-      console.log("❌ Delete error:", err);
-      return res.status(500).send("Delete error");
-    }
+    await db.query(
+      "DELETE FROM submissions WHERE id=$1",
+      [id]
+    );
 
-    res.json({ message: "Deleted" });
+    res.json({message:"Deleted"});
 
-  });
+  }catch(err){
+
+    console.log("❌ Delete error:",err);
+    res.status(500).send("Delete error");
+
+  }
 
 });
 
@@ -102,6 +110,6 @@ app.delete("/delete/:id", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log("🚀 Server running on port " + PORT);
+app.listen(PORT,()=>{
+  console.log("🚀 Server running on port "+PORT);
 });
